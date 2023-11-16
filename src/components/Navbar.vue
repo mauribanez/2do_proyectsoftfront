@@ -1,7 +1,7 @@
 <template>
     <div class="navbar">
-      <div class="navbar-icon" @click="openSidebar">&#9776;</div>
-      <div class="login-icon">👤</div>
+      <i class="fas fa-bars navbar-icon" @click="openSidebar"></i>
+    <i class="fas fa-user-circle login-icon"></i>
     </div>
   </template>
   

@@ -1,7 +1,7 @@
 <template>
   <div class="App">
     <Navbar @open-sidebar="openSidebar" />
-    <Sidebar v-if="sidebarOpen" @close-sidebar="closeSidebar" />
+    <Sidebar :isOpen="sidebarOpen" @close-sidebar="closeSidebar" />
     <SearchContainer />
     <Carousel />
     <main>
@@ -43,4 +43,3 @@ export default {
   }
 }
 </script>
-<style></style>
