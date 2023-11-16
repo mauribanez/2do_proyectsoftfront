@@ -5,19 +5,24 @@
     <SearchContainer />
     <Carousel />
     <main>
-      <CocktailCard title="Negroni" description="Ginebra, vermouth rojo y hielo" />
-      <CocktailCard title="Chuflay" description="Whisky, lemon juice, maple syrup y hielo" />
-      <!-- ... más tarjetas -->
+      <CocktailCard
+        v-for="cocktail in cocktails"
+        :key="cocktail.idDrink"
+        :title="cocktail.strDrink"
+        :ingredients="getCocktailIngredients(cocktail)"
+        :image="cocktail.strDrinkThumb"
+      />
     </main>
   </div>
 </template>
 
 <script>
-import Navbar from './components/Navbar.vue'
-import Sidebar from './components/Sidebar.vue'
-import SearchContainer from './components/SearchContainer.vue'
-import Carousel from './components/Carousel.vue'
-import CocktailCard from './components/CocktailCard.vue'
+import axios from 'axios';
+import Navbar from './components/Navbar.vue';
+import Sidebar from './components/Sidebar.vue';
+import SearchContainer from './components/SearchContainer.vue';
+import Carousel from './components/Carousel.vue';
+import CocktailCard from './components/CocktailCard.vue';
 
 export default {
   name: 'App',
@@ -30,8 +35,12 @@ export default {
   },
   data() {
     return {
-      sidebarOpen: false
+      sidebarOpen: false,
+      cocktails: []
     }
+  },
+  created() {
+    this.fetchCocktails();
   },
   methods: {
     openSidebar() {
@@ -39,6 +48,27 @@ export default {
     },
     closeSidebar() {
       this.sidebarOpen = false;
+    },
+    fetchCocktails() {
+      const cocktailIds = [11007, 11000, 11001, 11002]; 
+      Promise.all(cocktailIds.map(id => 
+        axios.get(`https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${id}`)))
+        .then(responses => {
+          this.cocktails = responses.map(response => response.data.drinks[0]);
+        })
+        .catch(error => {
+          console.error('Error fetching the cocktail data:', error);
+        });
+    },
+    getCocktailIngredients(cocktail) {
+      const ingredients = [];
+      for (let i = 1; i <= 15; i++) {
+        const ingredient = cocktail[`strIngredient${i}`];
+        if (ingredient) {
+          ingredients.push(ingredient);
+        }
+      }
+      return ingredients.join(', ');
     }
   }
 }
