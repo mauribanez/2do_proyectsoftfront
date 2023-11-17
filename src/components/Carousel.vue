@@ -55,9 +55,9 @@ export default {
   },
   showSlide(index) {
     const carouselInner = this.$el.querySelector('.carousel-inner');
-    this.currentIndex = index;
-    const newTransformValue = -this.currentIndex * 100 + '%';
-    carouselInner.style.transform = `translateX(${newTransformValue})`;
+  this.currentIndex = index;
+  const newTransformValue = -this.currentIndex * 100 + '%';
+  carouselInner.style.transform = `translateX(${newTransformValue})`;
   }
   }
 }
@@ -65,8 +65,9 @@ export default {
 
 <style scoped>
 .cocktail-name {
-  color: white;
+  color: black;
   text-align: center;
+  margin-top: 10px; 
 }
 /* Otros estilos para el carrusel */
 </style>

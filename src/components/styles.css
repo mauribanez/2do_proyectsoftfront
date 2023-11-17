@@ -74,28 +74,33 @@ body {
     margin: auto;
     overflow: hidden;
     position: relative;
+    margin: auto; /* Centra el carrusel horizontalmente si es necesario */
+    width: 80%;
+    overflow: hidden; /* Ajusta el ancho del carrusel según sea necesario */
 }
 
 .carousel-inner {
     display: flex;
     transition: transform 0.5s ease-in-out;
-    width: 200%;
+    width: 100%;
 }
 
 .carousel-item {
-    min-width: 60%;
-    box-sizing: border-box;
-    align-items: center;
     display: flex;
     justify-content: center;
-}
-
-.carousel-item img {
-    width: 20%; /* Hacer que todas las imágenes tengan el mismo ancho */
-    height: 50%; 
-    
-}
-
+    align-items: center;
+    height: 350px; /* Altura fija para cada elemento del carrusel, ajusta según sea necesario */
+    flex: 0 0 100%; /* Cada item debe ocupar el 100% del ancho del carrusel */
+    box-sizing: border-box;
+    flex-direction: column; /* Organiza los elementos internos en una columna */
+  }
+  
+  .carousel-item img {
+    max-height: 250px;
+    max-width: 100%;
+    object-fit: contain; /* Esto asegura que la imagen se ajuste mientras mantiene su relación de aspecto */
+    height: auto; /* Mantén la relación de aspecto */
+  }
 .carousel-btn {
     position: absolute;
     top: 50%;
@@ -110,11 +115,11 @@ body {
 }
 
 .carousel-btn-prev {
-    left: 20px;
+    left: 40px;
 }
 
 .carousel-btn-next {
-    right: 20px;
+    right: 40px;
 }
 
 .cocktail-container {
