@@ -1,22 +1,17 @@
 <template>
-  <div v-if="cocktail" class="cocktail-view">
+  <div class="cocktail-card">
     <div class="cocktail-image">
-      <!-- Muestra la imagen del cóctel -->
-      <img :src="cocktail.imageUrl" alt="Imagen del cóctel" />
+      <!-- Asegúrate de proporcionar la URL correcta de la imagen del cóctel -->
+      <img :src="cocktail.imageUrl" alt="Imagen del cóctel">
     </div>
     <div class="cocktail-info">
-      <!-- Muestra el nombre del cóctel -->
-      <h2>{{ cocktail.name }}</h2>
-      <!-- Muestra la categoría del cóctel -->
-      <h3>Categoría</h3>
-      <p>{{ cocktail.category }}</p>
-      <!-- Muestra los ingredientes del cóctel -->
-      <h3>Ingredientes</h3>
+      <h3>{{ cocktail.name }}</h3>
+      <p class="category">{{ cocktail.category }}</p>
+      <h4>Ingredientes:</h4>
       <ul>
         <li v-for="ingredient in cocktail.ingredients" :key="ingredient">{{ ingredient }}</li>
       </ul>
-      <!-- Muestra la preparación del cóctel -->
-      <h3>Preparación</h3>
+      <h4>Preparación:</h4>
       <p>{{ cocktail.preparation }}</p>
     </div>
   </div>
@@ -24,68 +19,51 @@
 
 <script>
 export default {
-  name: "CocktailView",
   props: {
     cocktail: {
       type: Object,
-      default: () => ({
-        name: "Cargando...",
-        imageUrl: "default-image-url.jpg", // Asegúrate de reemplazar esto con una URL de imagen por defecto
-        category: "",
-        ingredients: [],
-        preparation: ""
-      })
+      required: true
     }
   }
 };
 </script>
 
-<style scoped>
-.cocktail-view {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  grid-gap: 20px;
-  align-items: start;
-  margin: 20px;
-  border: 2px solid #000;
+<style>
+.cocktail-card {
+  display: flex;
+  align-items: flex-start; /* Alinea los elementos al principio de la tarjeta */
+  max-width: 800px; /* Aumenta el ancho máximo si es necesario */
+  margin: 20px auto;
   padding: 20px;
+  border-radius: 8px;
+  background-color: #ff7f50; /* El color naranja que has estado usando */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra suave para resaltar la tarjeta */
+  color: #fff; /* Texto blanco para contraste */
 }
 
 .cocktail-image img {
-  width: 100%;
+  max-width: 300px; /* Aumenta el ancho máximo si es necesario */
   height: auto;
-  border: 1px solid #000;
+  margin-right: 20px; /* Añade un margen a la derecha de la imagen */
+  border-radius: 8px;
 }
 
 .cocktail-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
+  flex: 1; /* Ocupa el espacio restante */
 }
 
-.cocktail-info h2 {
-  font-size: 1.5em;
-  border-bottom: 1px solid #000;
-  padding-bottom: 5px;
-  margin-bottom: 10px;
-}
-
-.cocktail-info h3 {
-  font-size: 1.2em;
-  margin-top: 20px;
+.cocktail-info h3, .cocktail-info h4 {
+  margin-top: 10px;
   margin-bottom: 5px;
 }
 
-.cocktail-info p, .cocktail-info ul {
-  margin: 0;
-  padding: 0;
-  list-style-position: inside;
+.category {
+  font-style: italic;
 }
 
-/* Estilo para los elementos de la lista de ingredientes */
-.cocktail-info ul {
-  padding-left: 20px; /* Añade un espacio dentro de la lista */
+ul {
+  padding-left: 20px;
 }
 
-/* Puedes agregar más estilos personalizados según tus necesidades */
+/* Si tienes más estilos que quieres aplicar, agrégalos aquí */
 </style>
