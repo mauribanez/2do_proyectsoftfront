@@ -16,7 +16,7 @@
   v-for="cocktail in cocktails"
   :key="cocktail.id"
   :title="cocktail.name"
-  :ingredients="cocktail.ingredients ? cocktail.ingredients.map(ing => `${ing.nombre}: ${ing.cantidad}`).join(', ') : ''"
+  :ingredients="cocktail.ingredients" 
   :image="cocktail.image"
 />
     </div>
@@ -38,6 +38,7 @@ export default {
     SearchContainer,
     CocktailCard
   },
+  
   data() {
     return {
       sidebarOpen: false,
@@ -56,17 +57,33 @@ export default {
     },
     fetchCocktailsAndIngredients() {
   getAllCocktails().then(response => {
-    this.cocktails = response.data['Cócteles'];
+    // Inicializamos cada cóctel con un array vacío para 'ingredients'
+    this.cocktails = response.data['Cócteles'].map(cocktail => ({
+      ...cocktail,
+      id: cocktail.cocktailId,
+      name: cocktail.nameCocktail,
+      image: '/path/to/default/image.jpg', // Asegúrate de que esta ruta sea correcta
+      ingredients: [] // Inicializamos 'ingredients' como un array vacío
+    }));
+
+    // Cargamos los ingredientes para cada cóctel
     this.cocktails.forEach((cocktail, index) => {
       getAllIngredients().then(ingredientsResponse => {
-        const ingredients = ingredientsResponse.data['Ingredientes creados'].filter(ingredient => ingredient.cocktailId === cocktail.id);
-        this.cocktails[index].ingredients = ingredients.map(ing => `${ing.nombre}: ${ing.cantidad}`);
-        // Al actualizar cocktails con un nuevo array, Vue 3 manejará la reactividad automáticamente.
+        // Filtramos y mapeamos los ingredientes para este cóctel
+        const ingredientsForCocktail = ingredientsResponse.data['Ingredientes creados']
+          .filter(ingredient => ingredient.cocktailId.cocktailId === cocktail.id)
+          .map(ing => `${ing.nombre}: ${ing.cantidad}`);
+        
+        // Actualizamos el cóctel con sus ingredientes
+        this.cocktails[index].ingredients = ingredientsForCocktail;
+
+        // Actualizamos la lista de cócteles para que Vue detecte el cambio
         this.cocktails = [...this.cocktails];
       });
     });
   }).catch(error => console.error('Error fetching cocktails:', error));
 }
+
   },
   mounted() {
     this.fetchCocktailsAndIngredients();

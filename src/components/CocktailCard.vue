@@ -4,7 +4,8 @@
       <h2>{{ title }}</h2>
       <h3>Ingredients</h3>
       <ul class="ingredients-list">
-        <li v-for="(ingredient, index) in ingredientsList" :key="index">
+        <!-- No necesitas usar 'split', 'ingredients' ya es un array -->
+        <li v-for="(ingredient, index) in ingredients" :key="index">
           - {{ ingredient }}
         </li>
       </ul>
@@ -18,18 +19,9 @@
 <script>
 export default {
   props: {
-    title: {
-      type: String,
-      default: ''
-    },
-    ingredients: {
-      type: String,
-      default: '' // Asegura que ingredients tenga un valor por defecto de cadena vacía.
-    },
-    image: {
-      type: String,
-      default: ''
-    }
+    title: String,
+    ingredients: Array, // 'ingredients' es un array de ingredientes.
+    image: String
   },
   computed: {
     ingredientsList() {
