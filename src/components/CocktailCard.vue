@@ -18,13 +18,23 @@
 <script>
 export default {
   props: {
-    title: String,
-    ingredients: String,
-    image: String
+    title: {
+      type: String,
+      default: ''
+    },
+    ingredients: {
+      type: String,
+      default: '' // Asegura que ingredients tenga un valor por defecto de cadena vacía.
+    },
+    image: {
+      type: String,
+      default: ''
+    }
   },
   computed: {
     ingredientsList() {
-      return this.ingredients.split(', ');
+      // Verifica que ingredients no sea una cadena vacía antes de dividirla.
+      return this.ingredients ? this.ingredients.split(', ') : [];
     }
   }
 }

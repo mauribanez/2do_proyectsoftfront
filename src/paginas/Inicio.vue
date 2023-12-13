@@ -64,13 +64,15 @@ export default {
       <SearchContainer />
       <Carousel />
       <main>
-        <CocktailCard
-          v-for="cocktail in cocktails"
-          :key="cocktail.idDrink"
-          :title="cocktail.strDrink"
-          :ingredients="getCocktailIngredients(cocktail)"
-          :image="cocktail.strDrinkThumb"
-        />
+        <div v-for="cocktail in cocktails" :key="cocktail.idDrink">
+        <router-link :to="{ name: 'Recetas', params: { id: cocktail.idDrink } }">
+          <CocktailCard
+            :title="cocktail.strDrink"
+            :ingredients="getCocktailIngredients(cocktail)"
+            :image="cocktail.strDrinkThumb"
+          />
+        </router-link>
+      </div>
       </main>
     </div>
   </template>

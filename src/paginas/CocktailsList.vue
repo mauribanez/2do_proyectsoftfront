@@ -1,64 +1,78 @@
 <template>
-    <div>
-      <Navbar @open-sidebar="openSidebar" />
-      <Sidebar :isOpen="sidebarOpen" @close-sidebar="closeSidebar" />
-      <SearchContainer />
-  
-      <div class="header-container">
+  <div>
+    <Navbar @open-sidebar="openSidebar" />
+    <Sidebar :isOpen="sidebarOpen" @close-sidebar="closeSidebar" />
+    <SearchContainer />
+
+    <div class="header-container">
       <h2>LISTA DE TUS CÓCTELES</h2>
       <button @click="navigateToCreateCocktail" class="create-button">Crear un cóctel</button>
     </div>
     <div v-if="cocktails.length === 0" class="no-cocktails">
-    No tienes ningún cóctel creado.
+      No tienes ningún cóctel creado.
+    </div>
+    <div v-else class="cocktail-list">
+      <CocktailCard
+  v-for="cocktail in cocktails"
+  :key="cocktail.id"
+  :title="cocktail.name"
+  :ingredients="cocktail.ingredients ? cocktail.ingredients.map(ing => `${ing.nombre}: ${ing.cantidad}`).join(', ') : ''"
+  :image="cocktail.image"
+/>
+    </div>
   </div>
-  <div v-else class="cocktail-list">
-    <CocktailCard
-            v-for="cocktail in cocktails"
-            :key="cocktail.idDrink"
-            :title="cocktail.strDrink"
-            :ingredients="getCocktailIngredients(cocktail)"
-            :image="cocktail.strDrinkThumb"
-          />
-  </div>
-      </div>
-  </template>
+</template>
   
-  <script>
-  
-  import Navbar from '../components/Navbar.vue';
-  import Sidebar from '../components/Sidebar.vue';
-  import SearchContainer from '../components/SearchContainer.vue';
-  import CocktailCard from '../components/CocktailCard.vue';
-  
-  export default {
-    components: {
-      Navbar,
-      Sidebar,
-      SearchContainer,
-      CocktailCard
-    },
-    data() {
-      return {
-        sidebarOpen: false,
-        cocktails: [] // Este será el arreglo de tus cócteles creados
-      }
-    },
-    methods: {
-      openSidebar() {
-        this.sidebarOpen = true;
-      },
-      closeSidebar() {
-        this.sidebarOpen = false;
-      },
-      navigateToCreateCocktail() {
-        // Aquí iría la lógica para navegar a la página de creación de cócteles
-        // Por ejemplo, usando this.$router.push('/create-cocktail') si estás utilizando Vue Router
-      },
-      // ... tus otros métodos ...
+<script>
+import Navbar from '../components/Navbar.vue';
+import Sidebar from '../components/Sidebar.vue';
+import SearchContainer from '../components/SearchContainer.vue';
+import CocktailCard from '../components/CocktailCard.vue';
+import { getAllCocktails } from '../servicios/ServicioCocktail.js';
+import { getAllIngredients } from '../servicios/ServicioIngredients.js';
+
+export default {
+  components: {
+    Navbar,
+    Sidebar,
+    SearchContainer,
+    CocktailCard
+  },
+  data() {
+    return {
+      sidebarOpen: false,
+      cocktails: [] // Este será el arreglo de tus cócteles creados
     }
+  },
+  methods: {
+    openSidebar() {
+      this.sidebarOpen = true;
+    },
+    closeSidebar() {
+      this.sidebarOpen = false;
+    },
+    navigateToCreateCocktail() {
+      this.$router.push('/create-cocktail');
+    },
+    fetchCocktailsAndIngredients() {
+  getAllCocktails().then(response => {
+    this.cocktails = response.data['Cócteles'];
+    this.cocktails.forEach((cocktail, index) => {
+      getAllIngredients().then(ingredientsResponse => {
+        const ingredients = ingredientsResponse.data['Ingredientes creados'].filter(ingredient => ingredient.cocktailId === cocktail.id);
+        this.cocktails[index].ingredients = ingredients.map(ing => `${ing.nombre}: ${ing.cantidad}`);
+        // Al actualizar cocktails con un nuevo array, Vue 3 manejará la reactividad automáticamente.
+        this.cocktails = [...this.cocktails];
+      });
+    });
+  }).catch(error => console.error('Error fetching cocktails:', error));
+}
+  },
+  mounted() {
+    this.fetchCocktailsAndIngredients();
   }
-  </script>
-  
+}
+</script>  
   <style>
 .header-container {
   display: flex;
