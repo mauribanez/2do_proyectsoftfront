@@ -12,4 +12,7 @@ export function getIngredientById(id) {
   return axios.get(`${API_URL}/${id}`);
 }
 
+export function createIngredient(ingredienteData) {
+  return axios.post(`${API_URL}/create`, ingredienteData);
+}
 // ... Más métodos para crear, actualizar y eliminar ingredientes ...

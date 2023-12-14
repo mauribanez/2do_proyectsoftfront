@@ -18,12 +18,53 @@
 </template>
 
 <script>
+import { getAllCocktails } from '../servicios/ServicioCocktail.js';
+import { getAllIngredients } from '../servicios/ServicioIngredients.js';
+
 export default {
-  props: {
-    cocktail: {
-      type: Object,
-      required: true
+  name: 'DetalleCocktail',
+  data() {
+    return {
+      cocktail: null,
+    };
+  },
+  methods: {
+    fetchCocktailsAndIngredients() {
+      const cocktailId = this.$route.params.cocktailId; // Asegúrate de que estás obteniendo el ID correctamente
+
+      getAllCocktails().then(cocktailsResponse => {
+        const cocktailsData = cocktailsResponse.data['Cócteles'];
+        console.log('Cócteles cargados:', cocktailsData); // Verifica los cócteles cargados
+
+        getAllIngredients().then(ingredientsResponse => {
+          const ingredientsData = ingredientsResponse.data['Ingredientes creados'];
+          console.log('Ingredientes cargados:', ingredientsData); // Verifica los ingredientes cargados
+
+          // Busca el cóctel específico
+          const foundCocktail = cocktailsData.find(c => c.cocktailId.toString() === cocktailId);
+          if (!foundCocktail) {
+            console.error('Cóctel no encontrado:', cocktailId);
+            return;
+          }
+
+          // Asigna los ingredientes al cóctel encontrado
+          const ingredientsForCocktail = ingredientsData
+            .filter(ing => ing.cocktailId.toString() === cocktailId.toString())
+            .map(ing => `${ing.nombre}: ${ing.cantidad}`);
+
+          this.cocktail = {
+            ...foundCocktail,
+            ingredients: ingredientsForCocktail
+          };
+          console.log('Cóctel con ingredientes:', this.cocktail); // Verifica el cóctel final
+        });
+      }).catch(error => {
+        console.error('Error fetching data:', error);
+      });
     }
+  },
+  mounted() {
+    this.fetchCocktailsAndIngredients();
   }
 };
 </script>

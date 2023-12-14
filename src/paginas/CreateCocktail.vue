@@ -36,13 +36,17 @@
       <div class="form-section">
         <input type="text" class="form-control mb-2" placeholder="Nombre del Cóctel" v-model="nombreCocktail">
         <select class="custom-select mb-2" v-model="tipoCocktail">
-          <option value="">Seleccione el tipo</option>
-          <option v-for="tipo in tiposCocktail" :key="tipo" :value="tipo">{{ tipo }}</option>
-        </select>
-        <select class="custom-select mb-2" v-model="categoriaCocktail">
-          <option value="">Seleccione la categoría</option>
-          <option v-for="categoria in categoriasCocktail" :key="categoria" :value="categoria">{{ categoria }}</option>
-        </select>
+  <option value="">Seleccione el tipo</option>
+  <option v-for="tipo in tiposCocktail" :key="tipo.typeCocktailId" :value="tipo.typeCocktailId">
+    {{ tipo.nameType }}
+  </option>
+</select>
+<select class="custom-select mb-2" v-model="categoriaCocktail">
+  <option value="">Seleccione la categoría</option>
+  <option v-for="categoria in categoriasCocktail" :key="categoria.categoryId" :value="categoria.categoryId">
+    {{ categoria.nameCategory }}
+  </option>
+</select>
         <textarea class="form-control mb-2" rows="3" placeholder="Instrucciones de preparación" v-model="instrucciones"></textarea>
       </div>
       <!-- Botones de Guardar y Cancelar -->
@@ -57,6 +61,10 @@
   <script>
   import Navbar from '../components/Navbar.vue';
   import Sidebar from '../components/Sidebar.vue';
+  import { createCocktail } from '../servicios/ServicioCocktail.js';
+  import { createIngredient } from '../servicios/ServicioIngredients.js';
+  import { getAllCategories } from '../servicios/ServicioCategory.js';
+  import { getAllTypeCocktails } from '../servicios/ServicioTypeCocktail.js';
 export default {
     components: {
     Navbar,
@@ -64,17 +72,25 @@ export default {
   },
   data() {
     return {
+      sidebarOpen: false, // Agrega esto
       nuevoIngrediente: { nombre: '', cantidad: '' },
       ingredientes: [],
       nombreCocktail: '',
-      tipoCocktail: '',
-      tiposCocktail: ['Tipo 1', 'Tipo 2', 'Tipo 3'], // Reemplaza con tus tipos
-      categoriaCocktail: '',
-      categoriasCocktail: ['Categoría 1', 'Categoría 2', 'Categoría 3'], // Reemplaza con tus categorías
-      instrucciones: ''
+      instrucciones: '',
+      categoriasCocktail: [],
+      tiposCocktail: [],
+      tipoCocktail: null,
+    categoriaCocktail: null,
     };
   },
   methods: {
+    openSidebar() {
+      this.sidebarOpen = true;
+    },
+    closeSidebar() {
+      this.sidebarOpen = false;
+    },
+    
     agregarIngrediente() {
       if (this.nuevoIngrediente.nombre && this.nuevoIngrediente.cantidad) {
         this.ingredientes.push({...this.nuevoIngrediente});
@@ -85,14 +101,71 @@ export default {
     eliminarIngrediente(index) {
       this.ingredientes.splice(index, 1);
     },
-    guardarCocktail() {
-      // Lógica para guardar el cóctel
-    },
-    cancelar() {
-      // Lógica para cancelar la creación
-    }
+    async guardarCocktail() {
+  // Verifica si los valores de tipo y categoría son válidos antes de enviar
+  if (!this.tipoCocktail || !this.categoriaCocktail) {
+    console.error('Tipo de cóctel o categoría no seleccionados');
+    return;
   }
-}
+
+  try {
+    const cocktailData = {
+      nameCocktail: this.nombreCocktail,
+      typeCocktail: this.tipoCocktail,
+      category: this.categoriaCocktail,
+      preparation: this.instrucciones
+    };
+
+    // Espera la respuesta de la creación del cóctel
+    const response = await createCocktail(cocktailData);
+    const cocktailId = response.data.cocktailId;
+
+    if (cocktailId) {
+      // Ahora crea los ingredientes con el ID del cóctel
+      for (const ingrediente of this.ingredientes) {
+        const ingredienteData = {
+          nombre: ingrediente.nombre,
+          cantidad: ingrediente.cantidad,
+          cocktailId: cocktailId // Asegúrate de que este ID es el correcto
+        };
+        await createIngredient(ingredienteData);
+      }
+      console.log('Cóctel y sus ingredientes guardados con éxito');
+    } else {
+      console.error('No se recibió un ID de cóctel válido');
+    }
+  } catch (error) {
+    console.error('Error al guardar cóctel o ingredientes:', error);
+  }
+},
+
+    
+    cargarDatos() {
+      getAllCategories().then(response => {
+  console.log('Categorías cargadas:', response.data);
+  this.categoriasCocktail = response.data; // Asumiendo que esto te da un array de objetos con categoryId y nameCategory
+}).catch(error => {
+  console.error('Error al cargar categorías:', error);
+});
+
+getAllTypeCocktails().then(response => {
+  console.log('Tipos de cócteles cargados:', response.data);
+  if(response.data && response.data['Tipos de cócteles']) {
+    this.tiposCocktail = response.data['Tipos de cócteles']; // Asumiendo que esto te da un array de objetos con typeCocktailId y nameType
+  } else {
+    console.error('Formato de respuesta inesperado para tipos de cóctel:', response.data);
+  }
+}).catch(error => {
+  console.error('Error al cargar tipos de cóctel:', error);
+});
+    }
+  },
+  mounted() {
+    this.cargarDatos();
+  }
+  // ... más código si es necesario ...
+};
+  
 </script>
 
 <style>

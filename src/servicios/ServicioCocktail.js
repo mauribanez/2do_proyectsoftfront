@@ -11,4 +11,8 @@ export function getCocktailById(id) {
   return axios.get(`${API_URL}/${id}`);
 }
 
+export function createCocktail(cocktailData) {
+  return axios.post(`${API_URL}/create`, cocktailData);
+}
+
 // ... Más métodos para crear, actualizar y eliminar cócteles ...
