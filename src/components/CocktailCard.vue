@@ -4,11 +4,12 @@
       <h2>{{ title }}</h2>
       <h3>Ingredients</h3>
       <ul class="ingredients-list">
-        <!-- No necesitas usar 'split', 'ingredients' ya es un array -->
         <li v-for="(ingredient, index) in ingredients" :key="index">
           - {{ ingredient }}
         </li>
       </ul>
+      <h3>Preparation</h3>
+      <p>{{ preparation }}</p>
     </div>
     <div class="cocktail-image">
       <img :src="image" :alt="`Imagen de ${title}`" />
@@ -20,15 +21,10 @@
 export default {
   props: {
     title: String,
-    ingredients: Array, // 'ingredients' es un array de ingredientes.
-    image: String
+    ingredients: Array,
+    preparation: String, // Agrega la propiedad preparation
+    image: String,
   },
-  computed: {
-    ingredientsList() {
-      // Verifica que ingredients no sea una cadena vacía antes de dividirla.
-      return this.ingredients ? this.ingredients.split(', ') : [];
-    }
-  }
 }
 </script>
 

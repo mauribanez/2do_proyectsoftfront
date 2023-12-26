@@ -19,7 +19,7 @@
         :key="cocktail.id"
         :title="cocktail.name"
         :ingredients="cocktail.ingredients" 
-        :image="cocktail.image"
+        :preparation="cocktail.preparation"
       />
     </div>
   </div>
@@ -65,8 +65,8 @@ export default {
           ...cocktail,
           id: cocktail.cocktailId,
           name: cocktail.nameCocktail,
-          image: '/path/to/default/image.jpg', // Asegúrate de que esta ruta sea correcta
-          ingredients: [] // Inicializamos 'ingredients' como un array vacío
+          ingredients: [], // Inicializamos 'ingredients' como un array vacío
+          preparation: cocktail.preparation,
         }));
 
         // Cargamos los ingredientes para cada cóctel
