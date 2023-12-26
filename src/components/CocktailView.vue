@@ -1,5 +1,5 @@
 <template>
-  <div class="cocktail-card">
+  <div class="cocktail-card" v-if="cocktail">
     <div class="cocktail-image">
       <!-- Asegúrate de proporcionar la URL correcta de la imagen del cóctel -->
       <img :src="cocktail.imageUrl" alt="Imagen del cóctel">
@@ -9,7 +9,9 @@
       <p class="category">{{ cocktail.category }}</p>
       <h4>Ingredientes:</h4>
       <ul>
-        <li v-for="ingredient in cocktail.ingredients" :key="ingredient">{{ ingredient }}</li>
+        <li v-for="ingredient in cocktail.ingredients" :key="ingredient">
+          {{ ingredient }}
+        </li>
       </ul>
       <h4>Preparación:</h4>
       <p>{{ cocktail.preparation }}</p>
@@ -20,52 +22,67 @@
 <script>
 import { getAllCocktails } from '../servicios/ServicioCocktail.js';
 import { getAllIngredients } from '../servicios/ServicioIngredients.js';
-
 export default {
-  name: 'DetalleCocktail',
-  data() {
-    return {
-      cocktail: null,
-    };
-  },
-  methods: {
-    fetchCocktailsAndIngredients() {
-      const cocktailId = this.$route.params.cocktailId; // Asegúrate de que estás obteniendo el ID correctamente
-
-      getAllCocktails().then(cocktailsResponse => {
-        const cocktailsData = cocktailsResponse.data['Cócteles'];
-        console.log('Cócteles cargados:', cocktailsData); // Verifica los cócteles cargados
-
-        getAllIngredients().then(ingredientsResponse => {
-          const ingredientsData = ingredientsResponse.data['Ingredientes creados'];
-          console.log('Ingredientes cargados:', ingredientsData); // Verifica los ingredientes cargados
-
-          // Busca el cóctel específico
-          const foundCocktail = cocktailsData.find(c => c.cocktailId.toString() === cocktailId);
-          if (!foundCocktail) {
-            console.error('Cóctel no encontrado:', cocktailId);
-            return;
-          }
-
-          // Asigna los ingredientes al cóctel encontrado
-          const ingredientsForCocktail = ingredientsData
-            .filter(ing => ing.cocktailId.toString() === cocktailId.toString())
-            .map(ing => `${ing.nombre}: ${ing.cantidad}`);
-
-          this.cocktail = {
-            ...foundCocktail,
-            ingredients: ingredientsForCocktail
-          };
-          console.log('Cóctel con ingredientes:', this.cocktail); // Verifica el cóctel final
-        });
-      }).catch(error => {
-        console.error('Error fetching data:', error);
-      });
+  props: {
+    cocktailProp: {
+      type: Object,
+      default: () => ({})
     }
   },
-  mounted() {
-    this.fetchCocktailsAndIngredients();
+  data() {
+    return {
+      cocktail: null
+    };
+  },
+  created() {
+    // Al crear el componente, copiamos los datos de la prop a una variable local
+    this.cocktail = { ...this.cocktailProp };
+  },
+  methods: {
+  fetchCocktailsAndIngredients() {
+    const cocktailId = this.$route.params.cocktailId;
+
+    getAllCocktails().then(cocktailsResponse => {
+      const cocktailsData = cocktailsResponse.data['Cócteles'];
+      const foundCocktail = cocktailsData.find(c => c.cocktailId.toString() === cocktailId);
+
+      if (!foundCocktail) {
+        console.error('Cóctel no encontrado:', cocktailId);
+        return;
+      }
+
+      // Configuración inicial del cóctel
+      this.cocktail = {
+        id: foundCocktail.cocktailId,
+        name: foundCocktail.nameCocktail,
+        imageUrl: "/path/to/default/image.jpg",
+        category: foundCocktail.category.nameCategory,
+        preparation: foundCocktail.preparation,
+        ingredients: []
+      };
+
+      getAllIngredients().then(ingredientsResponse => {
+        // Asegúrate de acceder correctamente al array de ingredientes
+        const ingredientsData = ingredientsResponse.data['Ingredientes creados'];
+
+        if (!Array.isArray(ingredientsData)) {
+          console.error('Error: La respuesta de los ingredientes no es un array.');
+          return;
+        }
+
+        // Filtra y mapea los ingredientes para este cóctel
+        const ingredientsForCocktail = ingredientsData
+          .filter(ing => ing.cocktailId.cocktailId === this.cocktail.id)
+          .map(ing => `${ing.nombre}: ${ing.cantidad}`);
+
+        // Actualiza el cóctel con sus ingredientes
+        this.cocktail.ingredients = ingredientsForCocktail;
+      });
+    }).catch(error => {
+      console.error('Error fetching data:', error);
+    });
   }
+}
 };
 </script>
 

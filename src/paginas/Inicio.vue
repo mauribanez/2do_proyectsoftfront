@@ -1,12 +1,11 @@
-<!-- src/paginas/Inicio.vue -->
+// src/paginas/Inicio.vue
 <script>
 import axios from 'axios';
-import Navbar from '../components/Navbar.vue'; // Cambiado de './components/Navbar.vue'
-import Sidebar from '../components/Sidebar.vue'; // Cambiado de './components/Sidebar.vue'
-import SearchContainer from '../components/SearchContainer.vue'; // Cambiado de './components/SearchContainer.vue'
-import Carousel from '../components/Carousel.vue'; // Cambiado de './components/Carousel.vue'
-import CocktailCard from '../components/CocktailCard.vue'; // Cambiado de './components/CocktailCard.vue'
-
+import Navbar from '../components/Navbar.vue';
+import Sidebar from '../components/Sidebar.vue';
+import SearchContainer from '../components/SearchContainer.vue';
+import Carousel from '../components/Carousel.vue';
+import CocktailCard from '../components/CocktailCard.vue';
 
 export default {
   name: 'Inicio',
@@ -38,7 +37,13 @@ export default {
       Promise.all(cocktailIds.map(id => 
         axios.get(`https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${id}`)))
         .then(responses => {
-          this.cocktails = responses.map(response => response.data.drinks[0]);
+          this.cocktails = responses.map(response => {
+            const drink = response.data.drinks[0];
+            return {
+              ...drink,
+              ingredients: this.getCocktailIngredients(drink) // Asegúrate de que esto devuelve un array
+            };
+          });
         })
         .catch(error => {
           console.error('Error fetching the cocktail data:', error);
@@ -52,28 +57,26 @@ export default {
           ingredients.push(ingredient);
         }
       }
-      return ingredients.join(', ');
+      return ingredients; // Ahora devuelve un array
     }
   }
 }
 </script>
+
 <template>
-    <div>
-      <Navbar @open-sidebar="openSidebar" />
-      <Sidebar :isOpen="sidebarOpen" @close-sidebar="closeSidebar" />
-      <SearchContainer />
-      <Carousel />
-      <main>
-        <div v-for="cocktail in cocktails" :key="cocktail.idDrink">
-        <router-link :to="{ name: 'Recetas', params: { id: cocktail.idDrink } }">
-          <CocktailCard
-            :title="cocktail.strDrink"
-            :ingredients="getCocktailIngredients(cocktail)"
-            :image="cocktail.strDrinkThumb"
-          />
-        </router-link>
+  <div>
+    <Navbar @open-sidebar="openSidebar" />
+    <Sidebar :isOpen="sidebarOpen" @close-sidebar="closeSidebar" />
+    <SearchContainer />
+    <Carousel />
+    <main>
+      <div v-for="cocktail in cocktails" :key="cocktail.idDrink">
+        <CocktailCard
+          :title="cocktail.strDrink"
+          :ingredients="cocktail.ingredients" 
+          :image="cocktail.strDrinkThumb"
+        />
       </div>
-      </main>
-    </div>
-  </template>
-  
+    </main>
+  </div>
+</template>

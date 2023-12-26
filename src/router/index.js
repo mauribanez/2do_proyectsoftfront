@@ -3,6 +3,8 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Inicio from '../paginas/Inicio.vue';
 import CreateCocktail from '../paginas/CreateCocktail.vue';
 import CocktailsList from '../paginas/CocktailsList.vue';
+import GenerateCocktail from '../paginas/GenerateCocktail.vue'; // Importa tu nuevo componente
+
 
 const routes = [
   {
@@ -26,6 +28,11 @@ const routes = [
     path: '/CocktailsList',
     name: 'CocktailsList',
     component: CocktailsList
+  },
+  {
+    path: '/generate-cocktail',
+    name: 'GenerateCocktail',
+    component: GenerateCocktail // Usa tu nuevo componente aquí
   },
   // ... otras rutas
 ];

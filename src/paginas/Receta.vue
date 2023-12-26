@@ -1,20 +1,28 @@
+<template>
+  <div>
+    <Navbar @open-sidebar="openSidebar" />
+    <Sidebar :isOpen="sidebarOpen" @close-sidebar="closeSidebar" />
+    <!-- Renderiza CocktailView solo si 'cocktail' tiene un valor -->
+    <CocktailView :cocktailProp="cocktail" />
+  </div>
+</template>
+
 <script>
-import CocktailView from '../components/CocktailView.vue';
 import Navbar from '../components/Navbar.vue';
 import Sidebar from '../components/Sidebar.vue';
-import { getCocktailById } from '../servicios/ServicioCocktail.js'; // Asegúrate de que la ruta sea correcta
+import CocktailView from '../components/CocktailView.vue';
+import { getCocktailById } from '../servicios/ServicioCocktail.js';
 
 export default {
-  name: "Recetas",
   components: {
-    CocktailView,
     Navbar,
     Sidebar,
+    CocktailView
   },
   data() {
     return {
-      cocktail: null, // Inicializa cocktail como null
-      sidebarOpen: false, // Agrega esto
+      cocktail: null,
+      sidebarOpen: false
     };
   },
   methods: {
@@ -25,38 +33,33 @@ export default {
       this.sidebarOpen = false;
     },
     fetchCocktailDetails() {
-      const cocktailId = this.$route.params.cocktailId;
-      getCocktailById(cocktailId).then(response => {
-        console.log('Respuesta completa:', response);
-        if (response.data && response.data.category) {
-          this.cocktail = {
-            id: response.data.cocktailId,
-            name: response.data.nameCocktail,
-            imageUrl: "https://www.gourmet.cl/wp-content/uploads/2019/03/Negroni-web-553x458.jpg",
-            category: response.data.category.nameCategory,
-            ingredients: response.data.ingredients.map(ing => `${ing.nombre}: ${ing.cantidad}`),
-            preparation: response.data.preparation
-          };
-          console.log('Detalle del cóctel:', this.cocktail); // Depuración: ver detalle del cóctel
-        } else {
-          console.error('La respuesta no tiene la estructura esperada:', response);
-        }
-      }).catch(error => {
-        console.error('Error fetching cocktail details:', error);
-      });
+  const cocktailId = this.$route.params.cocktailId;
+  getCocktailById(cocktailId).then(response => {
+    if (response.data && response.data.Cóctel) {
+      // Verifica si los ingredientes existen y son un array antes de mapearlos
+      const ingredients = Array.isArray(response.data.Cóctel.ingredients)
+        ? response.data.Cóctel.ingredients.map(ing => `${ing.nombre}: ${ing.cantidad}`)
+        : []; // Si no hay ingredientes, utiliza un array vacío
+
+      // Asigna directamente los datos del cóctel, incluyendo los ingredientes verificados
+      this.cocktail = {
+        id: response.data.Cóctel.cocktailId,
+        name: response.data.Cóctel.nameCocktail,
+        imageUrl: response.data.Cóctel.imageUrl || 'ruta/a/imagen/por/defecto.jpg',
+        category: response.data.Cóctel.category.nameCategory,
+        preparation: response.data.Cóctel.preparation,
+        ingredients: ingredients
+      };
+    } else {
+      console.error('La respuesta no tiene la estructura esperada:', response);
     }
+  }).catch(error => {
+    console.error('Error fetching cocktail details:', error);
+  });
+}
   },
   mounted() {
     this.fetchCocktailDetails();
   }
 };
 </script>
-
-<template>
-  <div>
-    <Navbar @open-sidebar="openSidebar" />
-    <Sidebar :isOpen="sidebarOpen" @close-sidebar="closeSidebar" />
-    <!-- Renderiza CocktailView solo si 'cocktail' tiene un valor -->
-    <CocktailView v-if="cocktail" :cocktail="cocktail" />
-  </div>
-</template>
