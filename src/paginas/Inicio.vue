@@ -1,4 +1,24 @@
-// src/paginas/Inicio.vue
+<template>
+  <div>
+    <Navbar @open-sidebar="openSidebar" />
+    <Sidebar :isOpen="sidebarOpen" @close-sidebar="closeSidebar" />
+    <SearchContainer @search-change="onSearchChange" />
+    <Carousel />
+    <main>
+      <div class="card-container">
+        <CocktailCard
+          v-for="(cocktail) in filteredCocktails"
+          :key="cocktail.idDrink"
+          :title="cocktail.nameDrink"
+          :ingredients="cocktail.ingredients" 
+          :image="cocktail.imagenURL" 
+          class="card-column"
+        />
+      </div>
+    </main>
+  </div>
+</template>
+
 <script>
 import axios from 'axios';
 import Navbar from '../components/Navbar.vue';
@@ -19,11 +39,17 @@ export default {
   data() {
     return {
       sidebarOpen: false,
-      cocktails: []
-    }
+      cocktails: [],
+      searchQuery: '', // Variable para almacenar la consulta de búsqueda
+      filteredCocktails: [], // Tarjetas filtradas en función de la búsqueda
+    };
   },
   created() {
     this.fetchCocktails();
+  },
+  watch: {
+    // Observador para cambios en la variable de búsqueda
+    searchQuery: 'onSearch', // Llamar al método onSearch cuando cambie searchQuery
   },
   methods: {
     openSidebar() {
@@ -33,17 +59,14 @@ export default {
       this.sidebarOpen = false;
     },
     fetchCocktails() {
-      const cocktailIds = [11007, 11000, 11001, 11002]; 
-      Promise.all(cocktailIds.map(id => 
-        axios.get(`https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${id}`)))
-        .then(responses => {
-          this.cocktails = responses.map(response => {
-            const drink = response.data.drinks[0];
-            return {
-              ...drink,
-              ingredients: this.getCocktailIngredients(drink) // Asegúrate de que esto devuelve un array
-            };
-          });
+      axios.get(`http://localhost:9998/api/v1/cocktailapi`)
+        .then(response => {
+          this.cocktails = response.data;
+          // Al iniciar, mostrar todas las tarjetas
+          this.filteredCocktails = [...this.cocktails.map(cocktail => ({
+            ...cocktail,
+            ingredients: this.getCocktailIngredients(cocktail),
+          }))];
         })
         .catch(error => {
           console.error('Error fetching the cocktail data:', error);
@@ -52,31 +75,28 @@ export default {
     getCocktailIngredients(cocktail) {
       const ingredients = [];
       for (let i = 1; i <= 15; i++) {
-        const ingredient = cocktail[`strIngredient${i}`];
-        if (ingredient) {
-          ingredients.push(ingredient);
+        const ingredientName = cocktail[`ingredientName${i}`];
+
+        if (ingredientName) {
+          ingredients.push(ingredientName);
         }
       }
-      return ingredients; // Ahora devuelve un array
-    }
-  }
-}
+      return ingredients; // Ahora devuelve un array solo con los nombres de los ingredientes
+    },
+    // Método para manejar cambios en la variable de búsqueda
+    onSearchChange(newQuery) {
+      this.searchQuery = newQuery;
+    },
+    // Método para realizar la búsqueda en tiempo real
+    onSearch() {
+      // Filtrar las tarjetas basadas en la consulta de búsqueda
+      this.filteredCocktails = this.cocktails.map(cocktail => ({
+        ...cocktail,
+        ingredients: this.getCocktailIngredients(cocktail),
+      })).filter(cocktail =>
+        cocktail.nameDrink.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+    },
+  },
+};
 </script>
-
-<template>
-  <div>
-    <Navbar @open-sidebar="openSidebar" />
-    <Sidebar :isOpen="sidebarOpen" @close-sidebar="closeSidebar" />
-    <SearchContainer />
-    <Carousel />
-    <main>
-      <div v-for="cocktail in cocktails" :key="cocktail.idDrink">
-        <CocktailCard
-          :title="cocktail.strDrink"
-          :ingredients="cocktail.ingredients" 
-          :image="cocktail.strDrinkThumb"
-        />
-      </div>
-    </main>
-  </div>
-</template>

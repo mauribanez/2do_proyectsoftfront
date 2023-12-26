@@ -33,33 +33,44 @@ export default {
 </script>
 
 <style scoped>
+/* Estilos CSS */
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.card-column {
+  width: 23%; /* Ajustado para permitir 4 tarjetas en una fila con espacio entre ellas */
+  box-sizing: border-box;
+  margin-bottom: 20px;
+}
+
 .cocktail-card {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  align-items: flex-start;
-  width: 35%; /* Ancho completo */
-  max-height: 200px; /* Altura fija para todas las tarjetas */
-  margin-bottom: 20px; /* Espacio entre tarjetas */
+  height: 100%; /* Ajuste para que las tarjetas tengan la misma altura */
 }
 
 .cocktail-info {
-  width: 60%; 
+  width: 100%;
 }
 
 .ingredients-list {
-  columns: 2; /* Divide la lista en 2 columnas */
-  column-gap: 20px; /* Espacio entre columnas */
-  margin-top: 10px; /* Espacio entre el título y la lista */
-  padding-left: 0; /* Remover padding por defecto */
-  list-style: none; /* Remover bullets */
+  columns: 2;
+  column-gap: 20px;
+  margin-top: 10px;
+  padding-left: 0;
+  list-style: none;
 }
 
 .cocktail-image {
-  width: 45%; /* Ancho de la sección de imagen */
+  width: 100%;
 }
 
 .cocktail-image img {
-  width: 100%; /* Ancho completo dentro del contenedor */
+  width: 100%;
   height: auto;
 }
 </style>
